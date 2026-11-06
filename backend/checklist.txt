@@ -1,0 +1,110 @@
+To run this application on another device (computer, server, or laptop), here are the exact dependencies and prerequisites required, broken down by component:
+
+---
+
+### **1. System Prerequisites**
+
+| Component | Software Needed | Recommended Version |
+| :--- | :--- | :--- |
+| **Python** | Python runtime | **3.10 – 3.14** |
+| **PostgreSQL** | Database server | **14 or higher** |
+| **Node.js** *(only for the mobile/frontend app)* | Node.js + npm | **18.x or 20.x LTS** |
+| **Git** *(optional)* | Version control | Any recent version |
+
+---
+
+### **2. Backend Dependencies**
+
+The backend runs on Python and uses the packages listed in `requirements.txt`:
+
+* **`fastapi`** – Web framework
+* **`uvicorn[standard]`** – ASGI application server
+* **`sqlalchemy[asyncio]`** – Database ORM with async support
+* **`asyncpg`** – High-performance PostgreSQL async driver
+* **`alembic`** – Database schema migration tool
+* **`pydantic` & `pydantic-settings`** – Data validation and `.env` configuration
+* **`email-validator`** – Email address validation
+* **`bcrypt`** – Password hashing
+
+#### How to install them on the new device:
+```bash
+# 1. Navigate to backend
+cd backend
+
+# 2. Create and activate a virtual environment
+# Windows:
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+
+# Linux / macOS:
+python3 -m venv .venv
+source .venv/bin/activate
+
+# 3. Install packages
+pip install -r requirements.txt
+```
+
+---
+
+### **3. Database Setup (PostgreSQL)**
+
+On the target machine:
+1. Ensure the PostgreSQL service is running.
+2. Create the database and user (or match the values in your `.env` file):
+   ```sql
+   CREATE USER postgres WITH PASSWORD 'YourPassword';
+   CREATE DATABASE robot_app OWNER postgres;
+   GRANT ALL ON SCHEMA public TO postgres;
+   ```
+3. Set your credentials in `backend/.env`:
+   ```env
+   PORT=8000
+   DB_HOST=localhost
+   DB_PORT=5432
+   DB_USER=postgres
+   DB_PASSWORD=YourPassword
+   DB_NAME=robot_app
+   ```
+4. Run table migrations:
+   ```bash
+   python migrate.py
+   ```
+
+---
+
+### **4. Mobile / Frontend Dependencies (Expo & React Native)**
+
+If you also want to run the mobile app on the other device or connect a phone to it:
+
+1. **Node.js**: Install from [nodejs.org](https://nodejs.org/) (includes `npm` and `npx`).
+2. **On a Physical Phone (Android / iPhone)**:
+   - Install the free **Expo Go** app from Google Play Store or Apple App Store.
+3. **Network requirement**:
+   - The phone and the computer running the backend must be on the **same Wi-Fi network**.
+   - In `mobile/.env`, set `EXPO_PUBLIC_API_URL=http://<PC_LOCAL_IP>:8000` (e.g. `http://192.168.1.15:8000`).
+
+---
+
+### **Quick Checklist for a New Machine**
+
+```
+[ ] Install Python (3.10+)
+[ ] Install PostgreSQL
+[ ] Clone / copy the project folder
+[ ] Create backend/.env with the new DB password
+[ ] Run: pip install -r backend/requirements.txt
+[ ] Run: python backend/migrate.py
+[ ] Run: python backend/run.py
+
+# 1. Navigate to backend
+cd backend
+# 2. Create and activate a virtual environment
+# Windows:
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+# Linux / macOS:
+python3 -m venv .venv
+source .venv/bin/activate
+# 3. Install packages
+pip install -r requirements.txt
+```
