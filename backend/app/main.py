@@ -8,17 +8,23 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
-from app.db.session import engine, get_db
+from app.db.session import AsyncSessionLocal, engine, get_db
 from app.routers.api import api_router
+from app.services.admin_auth_service import ensure_initial_super_admin
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    try:
+        async with AsyncSessionLocal() as db:
+            await ensure_initial_super_admin(db)
+    except Exception as exc:
+        print(f"⚠️ Skipping initial admin seed during startup: {exc}", flush=True)
     yield
     await engine.dispose()  # close the connection pool on shutdown
 
 
-app = FastAPI(title=settings.PROJECT_NAME, version="0.1.0", lifespan=lifespan)
+app = FastAPI(title=settings.PROJECT_NAME, version="0.2.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
